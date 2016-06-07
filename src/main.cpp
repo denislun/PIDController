@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <SPI.h>
+
 #include "thermocouple.h"
 #include "pid.h"
 #include "relay.h"
@@ -6,6 +8,7 @@
 #include "encoder.h"
 
 void setup() {
+  SPI.begin();
   setupRelay();
   setupEncoder();
   setupThermocouple();
@@ -17,5 +20,5 @@ void loop() {
   loopEncoder();
   loopThermocouple();
   loopPID();
-  delay(1000);
+  delay(500);
 }

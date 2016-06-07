@@ -4,11 +4,15 @@
 #include "pid.h"
 #include "display.h"
 
+#define HOLD_TIME 2000
+
 #define TEMP_MIN 0
 #define TEMP_MAX 250
 
 int movement = 0;
 bool encoderButtonWasPressed = false;
+bool encoderButtonWasHeld = false;
+unsigned long encoderButtonPressedAt;
 
 void encoderInterrupt() {
   if(digitalRead(ENCODER_A) && digitalRead(ENCODER_B)) // b is leading
@@ -17,8 +21,15 @@ void encoderInterrupt() {
     movement -= 1;
 }
 
-void encoderButtonInterrupt() {
-  encoderButtonWasPressed = true;
+void encoderButtonPressed() {
+  encoderButtonPressedAt = millis();
+}
+
+void encoderButtonReleased() {
+  if(millis() - encoderButtonPressedAt > HOLD_TIME)
+    encoderButtonWasHeld = true;
+  else
+    encoderButtonWasPressed = true;
 }
 
 double limitValue(double value, double min, double max) {
@@ -36,7 +47,8 @@ void setupEncoder() {
   pinMode(ENCODER_B, INPUT_PULLUP);
 
   attachInterrupt(digitalPinToInterrupt(ENCODER_A), encoderInterrupt, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_BTN), encoderButtonInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_BTN), encoderButtonPressed, FALLING);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_BTN), encoderButtonReleased, RISING);
 }
 
 void loopEncoder() {
@@ -46,10 +58,3 @@ void loopEncoder() {
     displayTargetTemperature(setPoint);
   }
 }
-
-bool encoderButtonIsPressed() {
-  return digitalRead(ENCODER_BTN) == LOW;
-}
-
-
-

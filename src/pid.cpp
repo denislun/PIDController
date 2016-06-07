@@ -51,9 +51,6 @@ void setupPID() {
   pid.SetOutputLimits(0, windowSize);
   pid.SetMode(MANUAL);
   pid.SetControllerDirection(DIRECT);
-
-  if(encoderButtonIsPressed())
-    pidStartAutoTune();
 }
 
 void loopPID() {
@@ -69,7 +66,7 @@ void loopPID() {
   }
 
   // Toggle On/Off
-  if(encoderButtonWasPressed) {
+  if(encoderButtonWasHeld) {
     if(pid.GetMode() == AUTOMATIC) {
       pid.SetMode(MANUAL);
       setRelay(false);

@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
 #include "display.h"
@@ -10,11 +9,11 @@ Adafruit_PCD8544 lcd = Adafruit_PCD8544(LCD_DC, LCD_CS, LCD_RST);
 void setupDisplay() {
   lcd.begin();
   lcd.clearDisplay();
-  lcd.setCursor(0, 0);
+  lcd.setContrast(50);
   lcd.setTextSize(1);
-  lcd.println("Current:");
-  lcd.setCursor(0, 3 * 8);
-  lcd.println("Target:");
+  lcd.setCursor(0, 10);
+  lcd.println("Hello World");
+  lcd.display();
 }
 
 void displayCurrentTemperature(double temp) {
@@ -24,6 +23,7 @@ void displayCurrentTemperature(double temp) {
   lcd.print(temp);
   lcd.print((char)223);
   lcd.print("C");
+  lcd.display();
 }
 
 void displayTargetTemperature(double temp) {
@@ -33,6 +33,7 @@ void displayTargetTemperature(double temp) {
   lcd.print(temp, DEC);
   lcd.print((char)223);
   lcd.print("C");
+  lcd.display();
 }
 
 void displayRelayState(bool state) {
@@ -43,4 +44,5 @@ void displayRelayState(bool state) {
     lcd.print(" ON");
   else
     lcd.print("OFF");
+  lcd.display();
 }
