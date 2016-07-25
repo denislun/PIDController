@@ -1,5 +1,5 @@
 #include "pins.h"
-#include "max6675.h"
+#include <Thermocouple.h>
 
 #ifndef _THERMOCOUPLE_H
 #define _THERMOCOUPLE_H

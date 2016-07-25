@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#include "thermocouple.h"
+#include "temperature.h"
 #include "pid.h"
 #include "relay.h"
 #include "display.h"
@@ -20,5 +20,4 @@ void loop() {
   loopEncoder();
   loopThermocouple();
   loopPID();
-  delay(500);
 }

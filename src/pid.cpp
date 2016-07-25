@@ -2,7 +2,7 @@
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
 #include "pid.h"
-#include "thermocouple.h"
+#include "temperature.h"
 #include "encoder.h"
 #include "relay.h"
 #include "settings.h"

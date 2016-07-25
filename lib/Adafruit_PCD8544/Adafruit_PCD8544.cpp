@@ -4,14 +4,14 @@ This is a library for our Monochrome Nokia 5110 LCD Displays
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/products/338
 
-These displays use SPI to communicate, 4 or 5 pins are required to  
+These displays use SPI to communicate, 4 or 5 pins are required to
 interface
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen below must be included in any redistribution
 *********************************************************************/
@@ -70,7 +70,7 @@ uint8_t pcd8544_buffer[LCDWIDTH * LCDHEIGHT / 8] = {
 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x0F, 0x1F, 0x3F, 0x7F, 0x7F,
 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0x7F, 0x1F, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
 
@@ -94,29 +94,8 @@ static void updateBoundingBox(uint8_t xmin, uint8_t ymin, uint8_t xmax, uint8_t 
 #endif
 }
 
-Adafruit_PCD8544::Adafruit_PCD8544(int8_t SCLK, int8_t DIN, int8_t DC,
-    int8_t CS, int8_t RST) : Adafruit_GFX(LCDWIDTH, LCDHEIGHT) {
-  _din = DIN;
-  _sclk = SCLK;
-  _dc = DC;
-  _rst = RST;
-  _cs = CS;
-}
-
-Adafruit_PCD8544::Adafruit_PCD8544(int8_t SCLK, int8_t DIN, int8_t DC,
-    int8_t RST) : Adafruit_GFX(LCDWIDTH, LCDHEIGHT) {
-  _din = DIN;
-  _sclk = SCLK;
-  _dc = DC;
-  _rst = RST;
-  _cs = -1;
-}
-
 Adafruit_PCD8544::Adafruit_PCD8544(int8_t DC, int8_t CS, int8_t RST):
   Adafruit_GFX(LCDWIDTH, LCDHEIGHT) {
-  // -1 for din and sclk specify using hardware SPI
-  _din = -1;
-  _sclk = -1;
   _dc = DC;
   _rst = RST;
   _cs = CS;
@@ -150,10 +129,10 @@ void Adafruit_PCD8544::drawPixel(int16_t x, int16_t y, uint16_t color) {
     return;
 
   // x is which column
-  if (color) 
-    pcd8544_buffer[x+ (y/8)*LCDWIDTH] |= _BV(y%8);  
+  if (color)
+    pcd8544_buffer[x+ (y/8)*LCDWIDTH] |= _BV(y%8);
   else
-    pcd8544_buffer[x+ (y/8)*LCDWIDTH] &= ~_BV(y%8); 
+    pcd8544_buffer[x+ (y/8)*LCDWIDTH] &= ~_BV(y%8);
 
   updateBoundingBox(x,y,x,y);
 }
@@ -164,32 +143,11 @@ uint8_t Adafruit_PCD8544::getPixel(int8_t x, int8_t y) {
   if ((x < 0) || (x >= LCDWIDTH) || (y < 0) || (y >= LCDHEIGHT))
     return 0;
 
-  return (pcd8544_buffer[x+ (y/8)*LCDWIDTH] >> (y%8)) & 0x1;  
+  return (pcd8544_buffer[x+ (y/8)*LCDWIDTH] >> (y%8)) & 0x1;
 }
 
 
 void Adafruit_PCD8544::begin(uint8_t contrast, uint8_t bias) {
-  if (isHardwareSPI()) {
-    // Setup hardware SPI.
-    SPI.begin();
-    SPI.setClockDivider(PCD8544_SPI_CLOCK_DIV);
-    SPI.setDataMode(SPI_MODE0);
-    SPI.setBitOrder(MSBFIRST);
-  }
-  else {
-    // Setup software SPI.
-
-    // Set software SPI specific pin outputs.
-    pinMode(_din, OUTPUT);
-    pinMode(_sclk, OUTPUT);
-
-    // Set software SPI ports and masks.
-    clkport     = portOutputRegister(digitalPinToPort(_sclk));
-    clkpinmask  = digitalPinToBitMask(_sclk);
-    mosiport    = portOutputRegister(digitalPinToPort(_din));
-    mosipinmask = digitalPinToBitMask(_din);
-  }
-
   // Set common pin outputs.
   pinMode(_dc, OUTPUT);
   if (_rst > 0)
@@ -235,43 +193,39 @@ void Adafruit_PCD8544::begin(uint8_t contrast, uint8_t bias) {
   display();
 }
 
-
-inline void Adafruit_PCD8544::spiWrite(uint8_t d) {
-  if (isHardwareSPI()) {
-    // Hardware SPI write.
-    SPI.transfer(d);
-  }
-  else {
-    // Software SPI write with bit banging.
-    for(uint8_t bit = 0x80; bit; bit >>= 1) {
-      *clkport &= ~clkpinmask;
-      if(d & bit) *mosiport |=  mosipinmask;
-      else        *mosiport &= ~mosipinmask;
-      *clkport |=  clkpinmask;
-    }
-  }
+inline void Adafruit_PCD8544::beginSPITransaction() {
+  SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
 }
 
-bool Adafruit_PCD8544::isHardwareSPI() {
-  return (_din == -1 && _sclk == -1);
+inline void Adafruit_PCD8544::spiWrite(uint8_t d) {
+  // Hardware SPI write.
+  SPI.transfer(d);
+}
+
+inline void Adafruit_PCD8544::endSPITransaction() {
+  SPI.endTransaction();
 }
 
 void Adafruit_PCD8544::command(uint8_t c) {
+  beginSPITransaction();
   digitalWrite(_dc, LOW);
   if (_cs > 0)
     digitalWrite(_cs, LOW);
   spiWrite(c);
   if (_cs > 0)
     digitalWrite(_cs, HIGH);
+  endSPITransaction();
 }
 
 void Adafruit_PCD8544::data(uint8_t c) {
+  beginSPITransaction();
   digitalWrite(_dc, HIGH);
   if (_cs > 0)
     digitalWrite(_cs, LOW);
   spiWrite(c);
   if (_cs > 0)
     digitalWrite(_cs, HIGH);
+  endSPITransaction();
 }
 
 void Adafruit_PCD8544::setContrast(uint8_t val) {
@@ -279,16 +233,13 @@ void Adafruit_PCD8544::setContrast(uint8_t val) {
     val = 0x7f;
   }
   command(PCD8544_FUNCTIONSET | PCD8544_EXTENDEDINSTRUCTION );
-  command( PCD8544_SETVOP | val); 
+  command( PCD8544_SETVOP | val);
   command(PCD8544_FUNCTIONSET);
-  
- }
-
-
+}
 
 void Adafruit_PCD8544::display(void) {
   uint8_t col, maxcol, p;
-  
+
   for(p = 0; p < 6; p++) {
 #ifdef enablePartialUpdate
     // check if this page is part of update
@@ -315,6 +266,7 @@ void Adafruit_PCD8544::display(void) {
     command(PCD8544_SETXADDR | col);
 
     digitalWrite(_dc, HIGH);
+    beginSPITransaction();
     if (_cs > 0)
       digitalWrite(_cs, LOW);
     for(; col <= maxcol; col++) {
@@ -322,6 +274,7 @@ void Adafruit_PCD8544::display(void) {
     }
     if (_cs > 0)
       digitalWrite(_cs, HIGH);
+    endSPITransaction();
 
   }
 
@@ -345,9 +298,9 @@ void Adafruit_PCD8544::clearDisplay(void) {
 /*
 // this doesnt touch the buffer, just clears the display RAM - might be handy
 void Adafruit_PCD8544::clearDisplay(void) {
-  
+
   uint8_t p, c;
-  
+
   for(p = 0; p < 8; p++) {
 
     st7565_command(CMD_SET_PAGE | p);
@@ -357,7 +310,7 @@ void Adafruit_PCD8544::clearDisplay(void) {
       st7565_command(CMD_SET_COLUMN_LOWER | (c & 0xf));
       st7565_command(CMD_SET_COLUMN_UPPER | ((c >> 4) & 0xf));
       st7565_data(0x0);
-    }     
+    }
     }
 
 }

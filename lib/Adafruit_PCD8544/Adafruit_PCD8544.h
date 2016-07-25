@@ -4,14 +4,14 @@ This is a library for our Monochrome Nokia 5110 LCD Displays
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/products/338
 
-These displays use SPI to communicate, 4 or 5 pins are required to  
+These displays use SPI to communicate, 4 or 5 pins are required to
 interface
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above, and the splash screen must be included in any redistribution
 *********************************************************************/
@@ -26,15 +26,6 @@ All text above, and the splash screen must be included in any redistribution
 #endif
 
 #include <SPI.h>
-
-#ifdef __SAM3X8E__
-  typedef volatile RwReg PortReg;
-  typedef uint32_t PortMask;
-#else
-  typedef volatile uint8_t PortReg;
-  typedef uint8_t PortMask;
-#endif
-
 
 #define BLACK 1
 #define WHITE 0
@@ -68,33 +59,28 @@ All text above, and the splash screen must be included in any redistribution
 
 class Adafruit_PCD8544 : public Adafruit_GFX {
  public:
-  // Software SPI with explicit CS pin.
-  Adafruit_PCD8544(int8_t SCLK, int8_t DIN, int8_t DC, int8_t CS, int8_t RST);
-  // Software SPI with CS tied to ground.  Saves a pin but other pins can't be shared with other hardware.
-  Adafruit_PCD8544(int8_t SCLK, int8_t DIN, int8_t DC, int8_t RST);
   // Hardware SPI based on hardware controlled SCK (SCLK) and MOSI (DIN) pins. CS is still controlled by any IO pin.
   // NOTE: MISO and SS will be set as an input and output respectively, so be careful sharing those pins!
   Adafruit_PCD8544(int8_t DC, int8_t CS, int8_t RST);
 
   void begin(uint8_t contrast = 40, uint8_t bias = 0x04);
-  
+
   void command(uint8_t c);
   void data(uint8_t c);
-  
+
   void setContrast(uint8_t val);
   void clearDisplay(void);
   void display();
-  
+
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   uint8_t getPixel(int8_t x, int8_t y);
 
  private:
-  int8_t _din, _sclk, _dc, _rst, _cs;
-  volatile PortReg  *mosiport, *clkport;
-  PortMask mosipinmask, clkpinmask;
+  int8_t _dc, _rst, _cs;
 
   void spiWrite(uint8_t c);
-  bool isHardwareSPI();
+  void beginSPITransaction();
+  void endSPITransaction();
 };
 
 #endif

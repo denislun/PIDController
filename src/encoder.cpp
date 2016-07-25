@@ -46,7 +46,7 @@ void setupEncoder() {
   pinMode(ENCODER_A, INPUT_PULLUP);
   pinMode(ENCODER_B, INPUT_PULLUP);
 
-  attachInterrupt(digitalPinToInterrupt(ENCODER_A), encoderInterrupt, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_B), encoderInterrupt, RISING);
   attachInterrupt(digitalPinToInterrupt(ENCODER_BTN), encoderButtonPressed, FALLING);
   attachInterrupt(digitalPinToInterrupt(ENCODER_BTN), encoderButtonReleased, RISING);
 }
