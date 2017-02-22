@@ -42,7 +42,7 @@ float Thermocouple::readC() {
     endSPITransaction();
 
     if (tcData & 0x0004) {                  //open thermocouple circuit
-        return -4.0;
+        return -1.0;
     }
     else {
         temp = (tcData >> 3) / 4.0;         //calculate deg C

@@ -6,6 +6,11 @@
 #include "encoder.h"
 #include "relay.h"
 #include "settings.h"
+#include "display.h"
+
+#define OFF    "OFF    "
+#define ON     "RUNNING"
+#define TUNING "TUNING "
 
 double setPoint = 100;
 double output;
@@ -51,34 +56,44 @@ void setupPID() {
   pid.SetOutputLimits(0, windowSize);
   pid.SetMode(MANUAL);
   pid.SetControllerDirection(DIRECT);
+
+  displayStatus(OFF);
+  displayTargetTemperature(setPoint);
 }
 
 void loopPID() {
-  // Autotuning
+  if(encoderButtonWasPressed) {
+    if(pid.GetMode() == AUTOMATIC) {
+      // Turn off
+      pid.SetMode(MANUAL);
+      setRelay(false);
+      displayStatus(OFF);
+    }
+    else {
+      // Turn on
+      pid.SetMode(AUTOMATIC);
+      displayStatus(ON);
+    }
+  } else if(encoderButtonWasHeld) {
+    // Autotune
+    pidStartAutoTune();
+    displayStatus(TUNING);
+  }
+
   if(autoTuning) {
     if(autoTuner.Runtime()) {
       pidFinishAutotune();
+      displayStatus(OFF);
     }
     else {
       setRelay(output < (millis() - windowStartTime));
-      return;
     }
   }
-
-  // Toggle On/Off
-  if(encoderButtonWasHeld) {
-    if(pid.GetMode() == AUTOMATIC) {
-      pid.SetMode(MANUAL);
-      setRelay(false);
-    }
-    else {
-      pid.SetMode(AUTOMATIC);
-    }
-  }
-
-  // PID is on!
-  if(pid.GetMode() == AUTOMATIC) {
+  else if(pid.GetMode() == AUTOMATIC) {
     pid.Compute();
     setRelay(output < (millis() - windowStartTime));
   }
+
+  encoderButtonWasHeld = false;
+  encoderButtonWasPressed = false;
 }

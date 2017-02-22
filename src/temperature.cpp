@@ -4,13 +4,16 @@
 #include "display.h"
 
 Thermocouple thermocouple = Thermocouple(THERMOCOUPLE_CS);
-double currentTemperature;
+double currentTemperature = -100;
 
 void setupThermocouple() {
   currentTemperature = thermocouple.readC();
 }
 
 void loopThermocouple() {
-  currentTemperature = thermocouple.readC();
-  displayCurrentTemperature(currentTemperature);
+  double temp = thermocouple.readC();
+  if(temp != currentTemperature) {
+    currentTemperature = temp;
+    displayCurrentTemperature(currentTemperature);
+  }
 }

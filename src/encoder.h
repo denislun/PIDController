@@ -4,7 +4,7 @@
 void setupEncoder();
 void loopEncoder();
 
-extern bool encoderButtonWasPressed;
-extern bool encoderButtonWasHeld;
+volatile extern bool encoderButtonWasPressed;
+volatile extern bool encoderButtonWasHeld;
 
 #endif

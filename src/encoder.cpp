@@ -4,15 +4,15 @@
 #include "pid.h"
 #include "display.h"
 
-#define HOLD_TIME 2000
+#define HOLD_TIME 5000
 
 #define TEMP_MIN 0
 #define TEMP_MAX 250
 
-int movement = 0;
-bool encoderButtonWasPressed = false;
-bool encoderButtonWasHeld = false;
-unsigned long encoderButtonPressedAt;
+volatile int movement = 0;
+volatile bool encoderButtonWasPressed = false;
+volatile bool encoderButtonWasHeld = false;
+volatile unsigned long encoderButtonPressedAt;
 
 void encoderInterrupt() {
   if(digitalRead(ENCODER_A) && digitalRead(ENCODER_B)) // b is leading
@@ -21,15 +21,15 @@ void encoderInterrupt() {
     movement -= 1;
 }
 
-void encoderButtonPressed() {
-  encoderButtonPressedAt = millis();
-}
-
-void encoderButtonReleased() {
-  if(millis() - encoderButtonPressedAt > HOLD_TIME)
-    encoderButtonWasHeld = true;
+void encoderButtonInterrupt() {
+  if(digitalRead(ENCODER_BTN)) {
+    if(millis() - encoderButtonPressedAt > HOLD_TIME)
+      encoderButtonWasHeld = true;
+    else
+      encoderButtonWasPressed = true;
+  }
   else
-    encoderButtonWasPressed = true;
+    encoderButtonPressedAt = millis();
 }
 
 double limitValue(double value, double min, double max) {
@@ -47,8 +47,7 @@ void setupEncoder() {
   pinMode(ENCODER_B, INPUT_PULLUP);
 
   attachInterrupt(digitalPinToInterrupt(ENCODER_B), encoderInterrupt, RISING);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_BTN), encoderButtonPressed, FALLING);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_BTN), encoderButtonReleased, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENCODER_BTN), encoderButtonInterrupt, CHANGE);
 }
 
 void loopEncoder() {

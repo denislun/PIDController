@@ -9,15 +9,16 @@
 
 void setup() {
   SPI.begin();
+  setupDisplay();
   setupRelay();
   setupEncoder();
   setupThermocouple();
   setupPID();
-  setupDisplay();
 }
 
 void loop() {
   loopEncoder();
   loopThermocouple();
   loopPID();
+  loopDisplay();
 }
